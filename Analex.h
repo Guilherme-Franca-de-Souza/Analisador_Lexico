@@ -12,6 +12,12 @@ enum TOKEN_CAT {
     // CONSTANTES
     CT_I, CT_R
 
+    //CHAR
+    CHAR,
+
+    //STRING
+    STRING,
+
     // FIM DO ARQUIVO  
     FIM_ARQ
     }; 
@@ -39,13 +45,6 @@ enum SINAIS {
             //OPERADORES LÓGICOS
             AND, OR
 
-            //CHAR
-            CHAR
-
-            //STRING
-            STRING
-
-
 }; // Sinais válidos da linguagem 
 
  
@@ -55,8 +54,9 @@ typedef
         enum TOKEN_CAT cat;    // deve receber uma das constantes de enum TOKEN_CAT 
         union {     // parte variável do registro 
             int codigo;  // para tokens das categorias SN 
-            char lexema[TAM_MAX_LEXEMA];  // cadeia de caractares que corresponde o nome do token da cat. ID 
-            int valInt; // valor da constante ineira em tokens da cat. CT_I 
+            char lexema[TAM_MAX_LEXEMA];  // cadeia de caractares que corresponde o nome do token da cat. ID, CHAR, ou STRING
+            int valInt; // valor da constante ineira em tokens da cat. CT_I
+            float valFloat; // valor da constante ineira em tokens da cat. CT_I  
         }; 
     } TOKEN;    // Tipo TOKEN 
     

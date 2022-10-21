@@ -248,7 +248,7 @@ TOKEN AnaLex(FILE *fd) {
                         estado = 7;            // monta token identificador e retorna 
                         ungetc(c, fd); 
                         t.cat = CT_R; 
-                        t.valInt = atof(digitos); 
+                        t.valFloat = atof(digitos); 
                         return t; 
                     }
             
@@ -346,10 +346,62 @@ TOKEN AnaLex(FILE *fd) {
                     break;
 
             case 28:
-                    if (c >= ' ' && c <= '~') {
-                        
+                    if (c == "'") {
+                        estado = 29;
+                        lexema[++tamL] = '\0';  
+                        t.cat = CHAR; 
+                        strcpy(t.lexema, lexema); 
+                        return t; 
+                    }else if (c >= ' ' && c <= '~'){
+                        estado = 30;
+                        lexema[tamL] = c;
+                        lexema[++tamL] = '\0';   
+                    }
+            case 30:
+                    if (c == "'"){
+                        estado = 29;
+                        t.cat = CHAR; 
+                        strcpy(t.lexema, lexema);
+                        return t; 
+                    }else   
+                        error("Caracter invalido na expressao!");    // sem transicao valida no AFD 
+                    break;
+            
+            case 31:
+                    if (c == '"') {
+                        estado = 33;
+                        lexema[++tamL] = '\0';  
+                        t.cat = STRING; 
+                        strcpy(t.lexema, lexema); 
+                        return t; 
+                    }else if (c >= ' ' && c <= '~'){
+                        estado = 32;
+                        lexema[tamL] = c;
+                        lexema[++tamL] = '\0';   
                     }
 
+            case 32:
+                    if (c == '"'){
+                        estado = 33;
+                        t.cat = CHAR; 
+                        strcpy(t.lexema, lexema);
+                        return t; 
+                    }else{
+                        estado = 32;
+                        lexema[tamL] = c;
+                        lexema[++tamL] = '\0'; 
+                    }
+
+            case 41:
+                    if (c == '*'){
+                        estado = 42;
+                    }
+            case 42:
+                    if (c != '/'){
+                        estado = 41;
+                    }else{
+                        estado = 0;
+                    }         
             
         }                     
     } 
@@ -376,10 +428,16 @@ int main() {
 
         tk = AnaLex(fd); 
 
-        switch (tk.cat) { 
+        switch (tk.cat) {
 
             case ID: printf("<ID, %s> ", tk.lexema); 
+                     break;
+
+            case CHAR: printf("<CHAR, %s> ", tk.lexema); 
                      break; 
+
+            case STRING: printf("<STRING, %s> ", tk.lexema); 
+                     break;
 
             case SN: switch (tk.codigo) { 
 
@@ -402,13 +460,57 @@ int main() {
                         break; 
 
                         case FECHA_PAR: printf("<SN, FECHA_PARENTESES> "); 
-                        break; 
+                        break;
+
+                        ///
+                        case ABRE_COL: printf("<SN, ABRE_PARENTESES> "); 
+                        break;
+
+                        case FECHA_COL: printf("<SN, ABRE_PARENTESES> "); 
+                        break;
+
+                        case ABRE_CHA: printf("<SN, ABRE_PARENTESES> "); 
+                        break;
+
+                        case FECHA_CHA: printf("<SN, ABRE_PARENTESES> "); 
+                        break;
+
+                        case IGUAL: printf("<SN, IGUAL> "); 
+                        break;
+
+                        case DIFERENTE: printf("<SN, DIFERENTE> "); 
+                        break;
+
+                        case NAO: printf("<SN, NAO> "); 
+                        break;
+
+                        case MENOR_IGUAL: printf("<SN, MENOR OU IGUAL> "); 
+                        break;
+
+                        case MENOR: printf("<SN, MENOR> "); 
+                        break;
+
+                        case MAIOR_IGUAL: printf("<SN, MAIOR OU IGUAL> "); 
+                        break;
+
+                        case MAIOR: printf("<SN, MAIOR> "); 
+                        break;
+
+                        case AND: printf("<SN, AND> "); 
+                        break;
+
+                        case OR: printf("<SN, OR> "); 
+                        break;     
 
                      } 
 
                      break; 
 
             case CT_I: printf("<CT_I, %d> ", tk.valInt); 
+
+                       break;
+
+            case CT_R: printf("<CT_R, %d> ", tk.valFloat); 
 
                        break; 
 
