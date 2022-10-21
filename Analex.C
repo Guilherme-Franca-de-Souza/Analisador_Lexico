@@ -66,8 +66,7 @@ TOKEN AnaLex(FILE *fd) {
                         lexema[++tamL] = '\0'; 
                     } 
 
-                    else if (c >= '1' && c <= '9') {  // inicio de constante inteira ou real- inicializa digitos
-                        printf("estado 0 recebe %c e salta pro estado 3\n", c); 
+                    else if (c >= '1' && c <= '9') {  // inicio de constante inteira ou real- inicializa digitos 
                         estado = 3; 
                         digitos[tamD] = c;  
                         digitos[++tamD] = '\0';        
@@ -207,19 +206,14 @@ TOKEN AnaLex(FILE *fd) {
 
             case 3:
                     if (c >= '0' && c <= '9') {
-                        printf("estado 3 recebe %c e continua\n", c)  ;
                         estado = 3; 
                         digitos[tamD] = c;       // acumula digitos lidos na variaavel digitos 
                         digitos[++tamD] = '\0'; 
 
                     }else if (c == '.'){
-
-                        printf("estado 3 recebe %c e salta pro estado 4\n", c) ;
                         estado = 4;
                         digitos[tamD] = c;       // acumula digitos lidos na variaavel digitos 
-                        digitos[++tamD] = '\0'; 
-                        printf("%s\n", digitos);
-                        
+                        digitos[++tamD] = '\0';    
                     }
 
                     else {                       // transicao OUTRO* do estado 10 do AFD 
@@ -232,7 +226,6 @@ TOKEN AnaLex(FILE *fd) {
                     break; 
             case 4:
                     if(c >= '0' && c <= '9'){
-                        printf("estado 4 recebe %c e salta pro estado 5\n", c); 
                         estado = 5;
                         digitos[tamD] = c;       // acumula digitos lidos na variaavel digitos 
                         digitos[++tamD] = '\0'; 
@@ -390,7 +383,7 @@ TOKEN AnaLex(FILE *fd) {
             case 32:
                     if (c == '"'){
                         estado = 33;
-                        t.cat = CHAR; 
+                        t.cat = STRING; 
                         strcpy(t.lexema, lexema);
                         return t; 
                     }else{
@@ -402,13 +395,24 @@ TOKEN AnaLex(FILE *fd) {
             case 41:
                     if (c == '*'){
                         estado = 42;
+                    
+                    }else if (c == EOF) {    // fim da expressao encontrado 
+                           t.cat = FIM_ARQ; 
+                           return t; 
+
+                    }else{
+                        estado = 41;
                     }
                     break;
             case 42:
-                    if (c != '/'){
-                        estado = 41;
-                    }else{
+                    if (c == '/'){
                         estado = 0;
+                    }else if (c == EOF) {    // fim da expressao encontrado 
+                           t.cat = FIM_ARQ; 
+                           return t; 
+                    } 
+                    else{
+                        estado = 41;
                     }
     
         }                     
@@ -474,7 +478,7 @@ int main() {
                         case ABRE_COL: printf("<SN, ABRE_COLCHETES> "); 
                         break;
 
-                        case FECHA_COL: printf("<SN, ABRE_COLCHETES> "); 
+                        case FECHA_COL: printf("<SN, FECHA_COLCHETES> "); 
                         break;
 
                         case ABRE_CHA: printf("<SN, ABRE_CHAVES> "); 
