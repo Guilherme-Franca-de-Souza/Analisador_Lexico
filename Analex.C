@@ -58,8 +58,7 @@ TOKEN AnaLex(FILE *fd) {
     while (1) { 
         char c = fgetc(fd); 
         switch (estado) {
-
-            case 0: if (c == ' ' || c == '\t') estado = 0; 
+            case 0: if (c == ' ' || c == '\t' || c == '\n') estado = 0; 
 
                     else if (c >= 'a' && c <= 'z') {  // inicio de identificador - inicializa lexema 
                         estado = 1; 
@@ -67,7 +66,8 @@ TOKEN AnaLex(FILE *fd) {
                         lexema[++tamL] = '\0'; 
                     } 
 
-                    else if (c >= '1' && c <= '9') {  // inicio de constante inteira ou real- inicializa digitos 
+                    else if (c >= '1' && c <= '9') {  // inicio de constante inteira ou real- inicializa digitos
+                        printf("estado 0 recebe %c e salta pro estado 3\n", c); 
                         estado = 3; 
                         digitos[tamD] = c;  
                         digitos[++tamD] = '\0';        
@@ -170,7 +170,7 @@ TOKEN AnaLex(FILE *fd) {
                         estado = 26; 
                     }
 
-                    else if (c == "'") {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '\'') {    // sinal de multiplicacao - monta e devolve token 
                         estado = 28; 
                     }
 
@@ -184,9 +184,8 @@ TOKEN AnaLex(FILE *fd) {
 
                     } 
                     else   
-                        error("Caracter invalido na expressao!");    // sem transicao valida no AFD 
+                        error("Caracter invalido na expressao! estado 0");    // sem transicao valida no AFD 
                     break; 
-
 
             case 1: if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || (c == '_')) {    
                         estado = 1; 
@@ -207,18 +206,20 @@ TOKEN AnaLex(FILE *fd) {
                     break; 
 
             case 3:
-
-                    if (c >= '0' && c <= '9') { 
-                        estado = 10; 
+                    if (c >= '0' && c <= '9') {
+                        printf("estado 3 recebe %c e continua\n", c)  ;
+                        estado = 3; 
                         digitos[tamD] = c;       // acumula digitos lidos na variaavel digitos 
                         digitos[++tamD] = '\0'; 
 
-                    }
+                    }else if (c == '.'){
 
-                    else if (c == "."){
-                        digitos[tamD] = c;       // acumula digitos lidos na variaavel digitos 
-                        digitos[++tamD] = '\0'; 
+                        printf("estado 3 recebe %c e salta pro estado 4\n", c) ;
                         estado = 4;
+                        digitos[tamD] = c;       // acumula digitos lidos na variaavel digitos 
+                        digitos[++tamD] = '\0'; 
+                        printf("%s\n", digitos);
+                        
                     }
 
                     else {                       // transicao OUTRO* do estado 10 do AFD 
@@ -227,17 +228,19 @@ TOKEN AnaLex(FILE *fd) {
                         t.cat = CT_I; 
                         t.valInt = atoi(digitos); 
                         return t; 
-
-                    } 
-            
+                    }
+                    break; 
             case 4:
                     if(c >= '0' && c <= '9'){
+                        printf("estado 4 recebe %c e salta pro estado 5\n", c); 
                         estado = 5;
+                        digitos[tamD] = c;       // acumula digitos lidos na variaavel digitos 
+                        digitos[++tamD] = '\0'; 
                     }
-                    else   
-                        error("Caracter invalido na expressao!");    // sem transicao valida no AFD 
-                    break;
-
+                    else{   
+                        error("Caracter invalido na expressao! estado 4");    // sem transicao valida no AFD
+                    }
+                    break;   
             case 5:
                     if(c >= '0' && c <= '9'){
                             estado = 5;
@@ -251,7 +254,7 @@ TOKEN AnaLex(FILE *fd) {
                         t.valFloat = atof(digitos); 
                         return t; 
                     }
-            
+                    break;
             case 11:
                     if(c == '*'){
                         estado = 41;
@@ -262,7 +265,7 @@ TOKEN AnaLex(FILE *fd) {
                         t.codigo = DIVISAO; 
                         return t; 
                     }
-            
+                    break;
             case 12:
                    if(c == '='){
                         estado = 13; 
@@ -277,7 +280,7 @@ TOKEN AnaLex(FILE *fd) {
                         t.codigo = ATRIB; 
                         return t; 
                     }
-            
+                    break;
             case 15:
                    if(c == '='){
                         estado = 16; 
@@ -292,7 +295,7 @@ TOKEN AnaLex(FILE *fd) {
                         t.codigo = NAO; 
                         return t; 
                     }
-            
+                    break;
             case 18:
                    if(c == '='){
                         estado = 19; 
@@ -307,7 +310,7 @@ TOKEN AnaLex(FILE *fd) {
                         t.codigo = MENOR; 
                         return t; 
                     }
-            
+                    break;
             case 21:
                    if(c == '='){
                         estado = 22; 
@@ -322,7 +325,7 @@ TOKEN AnaLex(FILE *fd) {
                         t.codigo = MAIOR; 
                         return t; 
                     }
-
+                    break;
             case 24:
                    if(c == '&'){
                         estado = 25; 
@@ -330,10 +333,10 @@ TOKEN AnaLex(FILE *fd) {
                         t.codigo = AND; 
                         return t; 
                     }
-                    else   
-                        error("Caracter invalido na expressao!");    // sem transicao valida no AFD 
+                    else{
+                        error("Caracter invalido na expressao! estado 24");    // sem transicao valida no AFD 
+                    }      
                     break;
-            
             case 26:
                    if(c == '|'){
                         estado = 27; 
@@ -341,12 +344,13 @@ TOKEN AnaLex(FILE *fd) {
                         t.codigo = OR; 
                         return t; 
                     }
-                    else   
-                        error("Caracter invalido na expressao!");    // sem transicao valida no AFD 
+                    else{
+                        error("Caracter invalido na expressao! estado 26");    // sem transicao valida no AFD 
+                    } 
                     break;
 
             case 28:
-                    if (c == "'") {
+                    if (c == '\'') {
                         estado = 29;
                         lexema[++tamL] = '\0';  
                         t.cat = CHAR; 
@@ -357,14 +361,17 @@ TOKEN AnaLex(FILE *fd) {
                         lexema[tamL] = c;
                         lexema[++tamL] = '\0';   
                     }
+                    break;
             case 30:
-                    if (c == "'"){
+                    if (c == '\''){
                         estado = 29;
                         t.cat = CHAR; 
                         strcpy(t.lexema, lexema);
                         return t; 
-                    }else   
-                        error("Caracter invalido na expressao!");    // sem transicao valida no AFD 
+                    }else{
+                        error("Caracter invalido na expressao! estado 30");    // sem transicao valida no AFD 
+                    }   
+                        
                     break;
             
             case 31:
@@ -379,7 +386,7 @@ TOKEN AnaLex(FILE *fd) {
                         lexema[tamL] = c;
                         lexema[++tamL] = '\0';   
                     }
-
+                    break;
             case 32:
                     if (c == '"'){
                         estado = 33;
@@ -391,18 +398,19 @@ TOKEN AnaLex(FILE *fd) {
                         lexema[tamL] = c;
                         lexema[++tamL] = '\0'; 
                     }
-
+                    break;
             case 41:
                     if (c == '*'){
                         estado = 42;
                     }
+                    break;
             case 42:
                     if (c != '/'){
                         estado = 41;
                     }else{
                         estado = 0;
-                    }         
-            
+                    }
+    
         }                     
     } 
 } 
@@ -447,7 +455,7 @@ int main() {
                         case SUBTRACAO: printf("<SN, SUBTRACAO> "); 
                         break; 
 
-                        case MULTIPLIC: printf("<SN, MULTIPLICACAO> "); 
+                        case MULTIPLICACAO: printf("<SN, MULTIPLICACAO> "); 
                         break; 
 
                         case DIVISAO: printf("<SN, DIVISAO> "); 
@@ -463,16 +471,16 @@ int main() {
                         break;
 
                         ///
-                        case ABRE_COL: printf("<SN, ABRE_PARENTESES> "); 
+                        case ABRE_COL: printf("<SN, ABRE_COLCHETES> "); 
                         break;
 
-                        case FECHA_COL: printf("<SN, ABRE_PARENTESES> "); 
+                        case FECHA_COL: printf("<SN, ABRE_COLCHETES> "); 
                         break;
 
-                        case ABRE_CHA: printf("<SN, ABRE_PARENTESES> "); 
+                        case ABRE_CHA: printf("<SN, ABRE_CHAVES> "); 
                         break;
 
-                        case FECHA_CHA: printf("<SN, ABRE_PARENTESES> "); 
+                        case FECHA_CHA: printf("<SN, FECHA_CHAVES> "); 
                         break;
 
                         case IGUAL: printf("<SN, IGUAL> "); 
@@ -510,7 +518,7 @@ int main() {
 
                        break;
 
-            case CT_R: printf("<CT_R, %d> ", tk.valFloat); 
+            case CT_R: printf("<CT_R, %f> ", tk.valFloat); 
 
                        break; 
 

@@ -10,7 +10,7 @@ enum TOKEN_CAT {
     SN,
 
     // CONSTANTES
-    CT_I, CT_R
+    CT_I, CT_R,
 
     //CHAR
     CHAR,
@@ -31,7 +31,7 @@ enum SINAIS {
             ATRIB = 1,
 
             //OPERADORES ARITMETICOS 
-            ADICAO, SUBTRACAO, MULTIPLIC,
+            ADICAO, SUBTRACAO, MULTIPLICACAO,
             DIVISAO,
             
             //SINAIS DE PRECEDÊNCIA
