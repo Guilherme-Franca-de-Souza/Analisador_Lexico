@@ -216,6 +216,8 @@ TOKEN AnaLex(FILE *fd) {
                     }
 
                     else if (c == "."){
+                        digitos[tamD] = c;       // acumula digitos lidos na variaavel digitos 
+                        digitos[++tamD] = '\0'; 
                         estado = 4;
                     }
 
@@ -248,10 +250,107 @@ TOKEN AnaLex(FILE *fd) {
                         t.cat = CT_R; 
                         t.valInt = atof(digitos); 
                         return t; 
-
                     }
-                      
+            
+            case 11:
+                    if(c == '*'){
+                        estado = 41;
+                    }
+                    else{
+                        estado = 40; 
+                        t.cat = SN; 
+                        t.codigo = DIVISAO; 
+                        return t; 
+                    }
+            
+            case 12:
+                   if(c == '='){
+                        estado = 13; 
+                        t.cat = SN; 
+                        t.codigo = IGUAL; 
+                        return t; 
+                    }
+                    else{
+                        estado = 14;
+                        ungetc(c, fd); 
+                        t.cat = SN; 
+                        t.codigo = ATRIB; 
+                        return t; 
+                    }
+            
+            case 15:
+                   if(c == '='){
+                        estado = 16; 
+                        t.cat = SN; 
+                        t.codigo = DIFERENTE; 
+                        return t; 
+                    }
+                    else{
+                        estado = 17;
+                        ungetc(c, fd); 
+                        t.cat = SN; 
+                        t.codigo = NAO; 
+                        return t; 
+                    }
+            
+            case 18:
+                   if(c == '='){
+                        estado = 19; 
+                        t.cat = SN; 
+                        t.codigo = MENOR_IGUAL; 
+                        return t; 
+                    }
+                    else{
+                        estado = 20;
+                        ungetc(c, fd); 
+                        t.cat = SN; 
+                        t.codigo = MENOR; 
+                        return t; 
+                    }
+            
+            case 21:
+                   if(c == '='){
+                        estado = 22; 
+                        t.cat = SN; 
+                        t.codigo = MAIOR_IGUAL; 
+                        return t; 
+                    }
+                    else{
+                        estado = 23; 
+                        ungetc(c, fd);
+                        t.cat = SN; 
+                        t.codigo = MAIOR; 
+                        return t; 
+                    }
 
+            case 24:
+                   if(c == '&'){
+                        estado = 25; 
+                        t.cat = SN; 
+                        t.codigo = AND; 
+                        return t; 
+                    }
+                    else   
+                        error("Caracter invalido na expressao!");    // sem transicao valida no AFD 
+                    break;
+            
+            case 26:
+                   if(c == '|'){
+                        estado = 27; 
+                        t.cat = SN; 
+                        t.codigo = OR; 
+                        return t; 
+                    }
+                    else   
+                        error("Caracter invalido na expressao!");    // sem transicao valida no AFD 
+                    break;
+
+            case 28:
+                    if (c >= ' ' && c <= '~') {
+                        
+                    }
+
+            
         }                     
     } 
 } 
