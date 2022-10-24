@@ -2,21 +2,25 @@
 #define ANALEX 
 #define TAM_MAX_LEXEMA 31 
 
+
 enum TOKEN_CAT {
     // IDENTIFICADOR
     ID=1,
 
+    //PALAVRA RESERVADA
+    PR,
+
     // SINAIS
     SN,
 
-    // CONSTANTES
+    // CONSTANTES NUMÉRICAS
     CT_I, CT_R,
 
     //CHAR
-    CHAR,
+    CT_C,
 
-    //STRING
-    STRING,
+    //STRING    
+    CT_L,
 
     // FIM DO ARQUIVO  
     FIM_ARQ
@@ -24,12 +28,19 @@ enum TOKEN_CAT {
 
 /* Onde: ID: Identificador, SN: Sinal; CT_I: Constante numérica inteira; CT_R: Constante numérica real*/ 
 
- 
+enum PAL_RESERV {BOOL= 1,CHAR,CLASS,
+                CODE,DATA,DELETE,
+                ELSE,FLOAT,FOR,
+                IF,INT,INTERN,
+                MAIN,NEW,RETURN,
+                VOID,WHILE, }; 
 
 enum SINAIS {
             // SINAL DE ATRIBUIÇÃO
             ATRIB = 1,
-
+            
+            //SINAIS ESPECIAIS
+            DOIS_PONTOS, PONTO_VIRGULA, CIRCUNFLEXO,
             //OPERADORES ARITMETICOS 
             ADICAO, SUBTRACAO, MULTIPLICACAO,
             DIVISAO,

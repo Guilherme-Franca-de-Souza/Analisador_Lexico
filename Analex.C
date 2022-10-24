@@ -7,16 +7,42 @@
 
 #define TAM_LEXEMA 50 
 #define TAM_NUM 20 
-
+#define PR_MAX_SIZE 7 //tamanho máximo de uma palavra reservada
+#define PR_QTD 17 //numero de palavras reservadas
  
 void error(char msg[]) { 
     printf("%s\n", msg); 
     exit(1); 
-} 
+}
 
-TOKEN AnaLex(FILE *fd) { 
+const int pr(char nome[]) { // função para verificar se o identificador é uma palavra reservada
 
-    int estado; 
+    int igual;
+
+    char pr[PR_QTD][PR_MAX_SIZE] {
+        "bool", "char", "class",
+        "code", "data", "delete",
+        "else", "float", "for",
+        "if", "int", "intern",
+        "main", "new", "return",
+        "void", "while"
+        };
+
+    int reservada = 0;
+    for(int i = 0; i<PR_QTD; i++){
+        igual = strcmp(nome, pr[i]);
+        if(igual == 0){
+            reservada = i+1;
+        }
+    }
+    
+    return reservada;
+    
+    }
+
+TOKEN AnaLex(FILE *fd) {
+
+    int estado, vpf; 
     char lexema[TAM_LEXEMA] = ""; 
     int tamL = 0; 
     char digitos[TAM_NUM] = ""; 
@@ -25,35 +51,6 @@ TOKEN AnaLex(FILE *fd) {
     TOKEN t; 
 
     estado = 0; 
-
-
-/*
-            // SINAL DE ATRIBUIÇÃO
-            ATRIB = 1,
-
-            //OPERADORES ARITMETICOS 
-            ADICAO, SUBTRACAO, MULTIPLIC,
-            DIVISAO,
-            
-            //SINAIS DE PRECEDÊNCIA
-            ABRE_PAR, FECHA_PAR, ABRE_COL,
-            FECHA_COL, ABRE_CHA, FECHA_CHA,
-
-            //OPERADORES RELACIONAIS
-            IGUAL, DIFERENTE, NAO, MENOR_IGUAL,
-            MENOR, MAIOR_IGUAL, MAIOR,   
-
-            //OPERADORES LÓGICOS
-            AND, OR
-
-            //CHAR
-            CHAR
-
-            //STRING
-            STRING
-*/
-
-
 
     while (1) { 
         char c = fgetc(fd); 
@@ -100,14 +97,14 @@ TOKEN AnaLex(FILE *fd) {
                         estado = 11; 
                     }
 
-                    else if (c == '(') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '(') {    // abre parêntese - monta e devolve token 
                         estado = 34; 
                         t.cat = SN; 
                         t.codigo = ABRE_PAR; 
                         return t; 
 
                     }
-                    else if (c == ')') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == ')') {    // fecha parêntese - monta e devolve token 
                         estado = 35; 
                         t.cat = SN; 
                         t.codigo = FECHA_PAR; 
@@ -115,14 +112,14 @@ TOKEN AnaLex(FILE *fd) {
 
                     }
 
-                    else if (c == '[') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '[') {    // abre colchetes - monta e devolve token 
                         estado = 36; 
                         t.cat = SN; 
                         t.codigo = ABRE_COL; 
                         return t; 
 
                     }
-                    else if (c == ']') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == ']') {    // fecha colchetes - monta e devolve token 
                         estado = 37; 
                         t.cat = SN; 
                         t.codigo = FECHA_COL; 
@@ -130,14 +127,14 @@ TOKEN AnaLex(FILE *fd) {
 
                     }
 
-                    else if (c == '{') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '{') {    // abre chaves - monta e devolve token 
                         estado = 38; 
                         t.cat = SN; 
                         t.codigo = ABRE_CHA; 
                         return t; 
 
                     }
-                    else if (c == '}') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '}') {    // fecha chaves - monta e devolve token 
                         estado = 39; 
                         t.cat = SN; 
                         t.codigo = FECHA_CHA; 
@@ -149,32 +146,53 @@ TOKEN AnaLex(FILE *fd) {
                         estado = 12; 
                     }
 
-                    else if (c == '!') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '!') {    // Exclamação pode ser o sinal de não, ou o sinal de diferente
                         estado = 15; 
                     }
 
-                    else if (c == '<') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '<') {    // menor, pode ser menor ou "menor ou igual" 
                         estado = 18; 
                     }
 
-                    else if (c == '>') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '>') {    // maior, pode ser maior ou igual 
                         estado = 21; 
                     }
 
-                    else if (c == '&') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '&') {    // inicializa sinal AND 
                         estado = 24; 
                     }
 
-                    else if (c == '|') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '|') {    // inicializa sinal OR
                         estado = 26; 
                     }
 
-                    else if (c == '\'') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '\'') {    // inicializa CT_C
                         estado = 28; 
                     }
 
-                    else if (c == '"') {    // sinal de multiplicacao - monta e devolve token 
+                    else if (c == '"') {    // inicializa CT_L
                         estado = 31; 
+                    }
+
+                    else if (c == ':') {    // dois pontos - monta e devolve token 
+                        estado = 43; 
+                        t.cat = SN; 
+                        t.codigo = DOIS_PONTOS; 
+                        return t;  
+                    }
+
+                    else if (c == ';') {    // ponto e vírgula - monta e devolve token 
+                        estado = 44; 
+                        t.cat = SN; 
+                        t.codigo = PONTO_VIRGULA; 
+                        return t;  
+                    }
+
+                    else if (c == '^') {    // acento circunflexo - monta e devolve token 
+                        estado = 45; 
+                        t.cat = SN; 
+                        t.codigo = CIRCUNFLEXO; 
+                        return t;  
                     }
 
                     else if (c == EOF) {    // fim da expressao encontrado 
@@ -193,11 +211,18 @@ TOKEN AnaLex(FILE *fd) {
 
                     } 
 
-                    else {                     // transicao OUTRO* do estado 1 do AFD 
-                        estado = 2;            // monta token identificador e retorna 
+                    else {    // transicao OUTRO* do estado 1 do AFD                  
+                        estado = 2;            
                         ungetc(c, fd); 
-                        t.cat = ID; 
-                        strcpy(t.lexema, lexema); 
+                        vpf = pr(lexema); // verifica se é palavra reservada
+                        if(vpf < 1){
+                            t.cat = ID;
+                            strcpy(t.lexema, lexema);// se não for, manda o lexema
+                        }else{
+                            t.cat = PR;
+                            t.codigo = vpf; //Se for, manda o código da PR
+                        } 
+                        
                         return t; 
 
                     } 
@@ -216,7 +241,7 @@ TOKEN AnaLex(FILE *fd) {
                         digitos[++tamD] = '\0';    
                     }
 
-                    else {                       // transicao OUTRO* do estado 10 do AFD 
+                    else {                       // transicao OUTRO* do estado 3 do AFD 
                         estado = 6;             // monta token constante inteira e retorna 
                         ungetc(c, fd); 
                         t.cat = CT_I; 
@@ -240,7 +265,7 @@ TOKEN AnaLex(FILE *fd) {
                             digitos[tamD] = c;       // acumula digitos lidos na variaavel digitos 
                             digitos[++tamD] = '\0'; 
                     }
-                    else {                     // transicao OUTRO* do estado 1 do AFD 
+                    else {                     // transicao OUTRO* do estado 5 do AFD 
                         estado = 7;            // monta token identificador e retorna 
                         ungetc(c, fd); 
                         t.cat = CT_R; 
@@ -346,7 +371,7 @@ TOKEN AnaLex(FILE *fd) {
                     if (c == '\'') {
                         estado = 29;
                         lexema[++tamL] = '\0';  
-                        t.cat = CHAR; 
+                        t.cat = CT_C; 
                         strcpy(t.lexema, lexema); 
                         return t; 
                     }else if (c >= ' ' && c <= '~'){
@@ -358,7 +383,7 @@ TOKEN AnaLex(FILE *fd) {
             case 30:
                     if (c == '\''){
                         estado = 29;
-                        t.cat = CHAR; 
+                        t.cat = CT_C; 
                         strcpy(t.lexema, lexema);
                         return t; 
                     }else{
@@ -371,7 +396,7 @@ TOKEN AnaLex(FILE *fd) {
                     if (c == '"') {
                         estado = 33;
                         lexema[++tamL] = '\0';  
-                        t.cat = STRING; 
+                        t.cat = CT_L; 
                         strcpy(t.lexema, lexema); 
                         return t; 
                     }else if (c >= ' ' && c <= '~'){
@@ -383,7 +408,7 @@ TOKEN AnaLex(FILE *fd) {
             case 32:
                     if (c == '"'){
                         estado = 33;
-                        t.cat = STRING; 
+                        t.cat = CT_L; 
                         strcpy(t.lexema, lexema);
                         return t; 
                     }else{
@@ -445,72 +470,97 @@ int main() {
             case ID: printf("<ID, %s> ", tk.lexema); 
                      break;
 
-            case CHAR: printf("<CHAR, %s> ", tk.lexema); 
+            case CT_C: printf("<CT_C, %s> ", tk.lexema); 
                      break; 
 
-            case STRING: printf("<STRING, %s> ", tk.lexema); 
+            case CT_L: printf("<CT_L, %s> ", tk.lexema); 
                      break;
+            
+            case PR: switch (tk.codigo) {
+                        case BOOL: printf("<PR, BOOL> "); 
+                        break;
+                        case CHAR: printf("<PR, CHAR> "); 
+                        break;
+                        case CLASS: printf("<PR, CLASS> "); 
+                        break;
+                        case CODE: printf("<PR, CODE> "); 
+                        break;
+                        case DATA: printf("<PR, DATA> "); 
+                        break; 
+                        case DELETE: printf("<PR, DELETE> "); 
+                        break;
+                        case ELSE: printf("<PR, ELSE> "); 
+                        break;
+                        case FLOAT: printf("<PR, FLOAT> "); 
+                        break;
+                        case FOR: printf("<PR, FOR> "); 
+                        break;
+                        case IF: printf("<PR, IF> "); 
+                        break;
+                        case INT: printf("<PR, INT> "); 
+                        break;
+                        case INTERN: printf("<PR, INTERN> "); 
+                        break;
+                        case MAIN: printf("<PR, MAIN> "); 
+                        break;
+                        case NEW: printf("<PR, NEW> "); 
+                        break;
+                        case RETURN: printf("<PR, RETURN> "); 
+                        break;
+                        case VOID: printf("<PR, VOID> "); 
+                        break;
+                        case WHILE: printf("<PR, WHILE> "); 
+                        break;
 
-            case SN: switch (tk.codigo) { 
+            }
+            break; 
+
+            case SN: switch (tk.codigo) {
 
                         case ADICAO: printf("<SN, ADICAO> "); 
                         break; 
-
                         case SUBTRACAO: printf("<SN, SUBTRACAO> "); 
                         break; 
-
                         case MULTIPLICACAO: printf("<SN, MULTIPLICACAO> "); 
                         break; 
-
                         case DIVISAO: printf("<SN, DIVISAO> "); 
                         break;
-
                         case ATRIB: printf("<SN, ATRIBUICAO> "); 
                         break; 
-
                         case ABRE_PAR: printf("<SN, ABRE_PARENTESES> "); 
                         break; 
-
                         case FECHA_PAR: printf("<SN, FECHA_PARENTESES> "); 
                         break;
-
-                        ///
                         case ABRE_COL: printf("<SN, ABRE_COLCHETES> "); 
                         break;
-
                         case FECHA_COL: printf("<SN, FECHA_COLCHETES> "); 
                         break;
-
                         case ABRE_CHA: printf("<SN, ABRE_CHAVES> "); 
                         break;
-
                         case FECHA_CHA: printf("<SN, FECHA_CHAVES> "); 
                         break;
-
                         case IGUAL: printf("<SN, IGUAL> "); 
                         break;
-
                         case DIFERENTE: printf("<SN, DIFERENTE> "); 
                         break;
-
+                        case DOIS_PONTOS: printf("<SN, DOIS PONTOS> "); 
+                        break;
+                        case PONTO_VIRGULA: printf("<SN, PONTO E VIRGUAL> "); 
+                        break;
+                        case CIRCUNFLEXO: printf("<SN, CIRCUNFLEXO> "); 
+                        break;
                         case NAO: printf("<SN, NAO> "); 
                         break;
-
                         case MENOR_IGUAL: printf("<SN, MENOR OU IGUAL> "); 
                         break;
-
                         case MENOR: printf("<SN, MENOR> "); 
                         break;
-
                         case MAIOR_IGUAL: printf("<SN, MAIOR OU IGUAL> "); 
                         break;
-
                         case MAIOR: printf("<SN, MAIOR> "); 
                         break;
-
                         case AND: printf("<SN, AND> "); 
                         break;
-
                         case OR: printf("<SN, OR> "); 
                         break;     
 

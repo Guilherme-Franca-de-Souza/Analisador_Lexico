@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "Alanex.C": "cpp",
-        "Analex.C": "cpp"
+        "Analex.C": "cpp",
+        "teste.C": "cpp"
     }
 }

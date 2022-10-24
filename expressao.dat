@@ -10,7 +10,8 @@ identificador = 1 || 3.6 && 4 /* comentario */
 <
 >=
 <=
-
+if
+else
 "string"
 'C'
 ""
